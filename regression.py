@@ -12,11 +12,15 @@ import matplotlib.pyplot as plt
 # y_train = y_train.iloc[:,0]
 # X_test  = X_test.iloc[:,:]
 # y_test  = y_test.iloc[:,0]
+#
+#data = pd.read_csv('petrol_consumption.csv')
+#msk = np.random.rand(len(data)) < 0.8
+train = pd.read_csv('file_train_petrol.csv')
+test = pd.read_csv('file_test_petrol.csv')
 
-data = pd.read_csv('petrol_consumption.csv')
-msk = np.random.rand(len(data)) < 0.8
-train = data[msk]
-test = data[~msk]
+#train.to_csv('file_train_petrol.csv')
+#test.to_csv('file_test_petrol.csv')
+
 
 X_train = train.iloc[:, train.columns != 'Petrol_Consumption']
 y_train = train.iloc[:,-1]
@@ -57,7 +61,7 @@ theta = np.zeros([X_train.shape[1],])
 def cal_cost(theta, X, y):
     y_pred_test = predict(theta, X)
     to_sum = (y_pred_test - y) ** 2
-    return np.sum(to_sum) / (X.shape[0])
+    return np.sum(to_sum) / (X.shape[0]*2)
 
 
 def gradient_descent(X,y,theta):
@@ -69,19 +73,50 @@ def gradient_descent(X,y,theta):
 
     return theta, cost_history
 
+orig_theta = np.dot(np.dot(np.linalg.inv(np.dot(np.transpose(X_train), X_train)), np.transpose(X_train)), y_train)
+print(orig_theta)
+print('---------------')
 
 theta, cost_history = gradient_descent(X_train, y_train, theta)
 cost = cal_cost(theta,X_test, y_test)
 
+#Plot descent gradient
 def plot():
     fig, ax = plt.subplots(figsize=(12, 8))
     ax.set_ylabel('J(Theta)')
     ax.set_xlabel('Iterations')
-    _ = ax.plot(range(iters), cost_history, 'b.')
+    _ = ax.plot(range(iters), cost_history, 'g.')
     plt.show()
+
+#Plot rect with theta
+def plot_line():
+    from pylab import rcParams
+    rcParams['figure.figsize'] = 5, 10
+
+    if n_features == 2:  # este ploteo solo funciona cuando el conjunto de datos tiene dos características
+        plt.subplot(2, 1, 2)
+        plt.scatter(X_train[:, 1], y_train,
+                    s=10)  # esto solo está ploteando los datos del conjunto de entremaniento.
+        # es solo para saber si la línea encontrada se ajusta a la distribución de
+        # los datos de entrenamiento
+        linea = np.arange(np.min(X_train[:, 1] - 1), np.max(X_train[:, 1] + 1))
+        linea = np.column_stack((np.ones(linea.shape[0]), linea))
+        plt.plot(linea[:, 1], predict(theta, linea), c="green")
+        plt.xlabel('X_1')
+        plt.ylabel('y')
+        cadena = "Recta: y = X_1 * " + str(round(theta[1], 2)) + " +  " + str(
+            round(theta[0], 2))
+        plt.text(0.5, 0.5, cadena, horizontalalignment='left',
+                 verticalalignment='center', )
+
+    plt.show()
+
 
 print(theta)
 print(cost)
+#plot()
+#plot_line()
+
 #plot()
 # inicializar con un vector de ceros.
 
