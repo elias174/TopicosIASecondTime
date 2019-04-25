@@ -4,6 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import collections
 
+from dateutil.parser._parser import _ymd
+
 
 class LogisticRegression(object):
     def __init__(self, train_set, test_set, iterations):
@@ -74,6 +76,23 @@ class LogisticRegression(object):
     def hyphotesis(self, theta, X):
         return self.sigmoid(self.predict(theta, X))
 
+    def plot_elements(self, X_, y_):
+        one_type = X_[y_ == 0]
+        second_type = X_[y_ == 1]
+        plt.scatter(one_type[:, 1], one_type[:, 2], s=10)
+        plt.scatter(second_type[:, 1], second_type[:, 2], s=10)
+
+        x_values = [np.min(X_[:, 1] - 2), np.max(X_[:, 2] + 2)]
+        y_values = - (self.theta[0] + np.dot(self.theta[1], x_values)) / self.theta[2]
+        plt.plot(x_values, y_values, label='Decision Boundary')
+        #
+        plt.show()
+
+    def plot_train_elements(self):
+        self.plot_elements(self.X_train, self.y_train)
+
+    def plot_test_elements(self):
+        self.plot_elements(self.X_test, self.y_test)
 
 def execute():
     train = pd.read_csv('csv_regression/Train_ex2data1.csv')
@@ -82,8 +101,9 @@ def execute():
     logistic_regression = LogisticRegression(train, test, 1000)
     logistic_regression.normalize()
     logistic_regression.train(0.01)
-    print(logistic_regression.get_error())
-    logistic_regression.plot_cost_history()
+    logistic_regression.plot_test_elements()
+    # print(logistic_regression.get_error())
+    # logistic_regression.plot_cost_history()
 
 
 execute()
