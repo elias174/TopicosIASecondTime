@@ -2,10 +2,6 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import collections
-
-from dateutil.parser._parser import _ymd
-
 
 class LogisticRegression(object):
     def __init__(self, train_set, test_set, iterations):
@@ -67,6 +63,16 @@ class LogisticRegression(object):
             self.y_test
         )
 
+    def accuracy(self):
+        predictions = self.hyphotesis(self.theta, self.X_test)
+        asserts = 0
+        for prediction, y_value in zip(predictions, self.y_test):
+            value_prediction = 1 if prediction > 0.5 else 0
+            if y_value == value_prediction:
+                asserts += 1
+
+        print(asserts/self.y_test.shape[0])
+
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
 
@@ -101,7 +107,8 @@ def execute():
     logistic_regression = LogisticRegression(train, test, 1000)
     logistic_regression.normalize()
     logistic_regression.train(0.01)
-    logistic_regression.plot_test_elements()
+    logistic_regression.accuracy()
+    #logistic_regression.plot_test_elements()
     # print(logistic_regression.get_error())
     # logistic_regression.plot_cost_history()
 
